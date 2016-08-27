@@ -229,6 +229,7 @@ matrix:
         - USE_CACHE=true
 
 before_install:
+  - openssl aes-256-cbc -K $encrypted_4a66b2b60580_key -iv $encrypted_4a66b2b60580_iv -in travis_gbq.json.enc -out travis_gbq.json -d
   - echo "before_install"
   - echo $VIRTUAL_ENV
   - export PATH="$HOME/miniconda/bin:$PATH"
