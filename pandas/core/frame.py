@@ -995,7 +995,8 @@ class DataFrame(NDFrame):
             raise ValueError("orient '%s' not understood" % orient)
 
     def to_gbq(self, destination_table, project_id, chunksize=10000,
-               verbose=True, reauth=False, if_exists='fail', private_key=None):
+               verbose=True, reauth=False, if_exists='fail', private_key=None,
+               auth_local_webserver=False, credentials_path=None):
         """Write a DataFrame to a Google BigQuery table.
 
         The main method a user calls to export pandas DataFrame contents to
@@ -1037,17 +1038,33 @@ class DataFrame(NDFrame):
         if_exists : {'fail', 'replace', 'append'}, default 'fail'
             'fail': If table exists, do nothing.
             'replace': If table exists, drop it, recreate it, and insert data.
-            'append': If table exists, insert data. Create if does not exist.
+            'append': If table exists and the dataframe schema is a subset of
+            the destination table schema, insert data. Create destination table
+            if does not exist.
         private_key : str (optional)
             Service account private key in JSON format. Can be file path
             or string contents. This is useful for remote server
             authentication (eg. jupyter iPython notebook on remote host)
+        auth_local_webserver : boolean, default False
+            Use the [local webserver flow] instead of the [console flow] when
+            getting user credentials.
+
+            .. [local webserver flow]
+                http://google-auth-oauthlib.readthedocs.io/en/latest/reference/google_auth_oauthlib.flow.html#google_auth_oauthlib.flow.InstalledAppFlow.run_local_server
+            .. [console flow]
+                http://google-auth-oauthlib.readthedocs.io/en/latest/reference/google_auth_oauthlib.flow.html#google_auth_oauthlib.flow.InstalledAppFlow.run_console
+
+        credentials_path : str  (optional)
+            This path will override the default path used for storing the
+            BigQuery credentials.
         """
 
         from pandas.io import gbq
         return gbq.to_gbq(self, destination_table, project_id=project_id,
                           chunksize=chunksize, verbose=verbose, reauth=reauth,
-                          if_exists=if_exists, private_key=private_key)
+                          if_exists=if_exists, private_key=private_key,
+                          auth_local_webserver=auth_local_webserver,
+                          credentials_path=credentials_path)
 
     @classmethod
     def from_records(cls, data, index=None, exclude=None, columns=None,
